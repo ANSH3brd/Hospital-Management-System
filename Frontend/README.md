@@ -124,9 +124,8 @@ This project is licensed under the MIT License.
 
 ## Contributors
 
-- Your Name
-- Other Contributors
+- Ansh
+
 
 ## Acknowledgements
 
-Special thanks to all the contributors who helped in building this project. 
