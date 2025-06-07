@@ -1,0 +1,208 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-user-injured me-2"></i>Patient Details</h1>
+    <div>
+        <a href="/patients" class="btn btn-secondary me-2">
+            <i class="fas fa-arrow-left me-1"></i> Back to Patients
+        </a>
+        <a href="/patients/edit/{{ patient.Patient_ID }}" class="btn btn-warning">
+            <i class="fas fa-edit me-1"></i> Edit Patient
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-id-card me-2"></i>Basic Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    {% if patient.Gender == 'Male' %}
+                    <i class="fas fa-male fa-5x text-primary"></i>
+                    {% elif patient.Gender == 'Female' %}
+                    <i class="fas fa-female fa-5x text-primary"></i>
+                    {% else %}
+                    <i class="fas fa-user fa-5x text-primary"></i>
+                    {% endif %}
+                    <h3 class="mt-3">{{ patient.Name }}</h3>
+                    <span class="badge bg-secondary">ID: {{ patient.Patient_ID }}</span>
+                </div>
+                <table class="table">
+                    <tr>
+                        <th>Gender:</th>
+                        <td>{{ patient.Gender }}</td>
+                    </tr>
+                    <tr>
+                        <th>Age:</th>
+                        <td>{{ patient.Age }} years</td>
+                    </tr>
+                    <tr>
+                        <th>Date of Birth:</th>
+                        <td>{{ patient.Date_of_Birth.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    <tr>
+                        <th>Blood Group:</th>
+                        <td>{{ patient.Blood_Group }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Contact Information</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <tr>
+                        <th width="150">Contact Number:</th>
+                        <td>{{ patient.Contact_Number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ patient.Email }}</td>
+                    </tr>
+                    <tr>
+                        <th>Address:</th>
+                        <td>{{ patient.Address }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-file-medical me-2"></i>Medical History</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ patient.Medical_History|safe }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Insurance Details</h5>
+            </div>
+            <div class="card-body">
+                <p>{{ patient.Insurance_Details|safe }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patient's Recent Appointments -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="far fa-calendar-check me-2"></i>Recent Appointments</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Doctor</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if appointments %}
+                        {% for appointment in appointments %}
+                        <tr>
+                            <td>{{ appointment.Appointment_Date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ appointment.Appointment_Time }}</td>
+                            <td>{{ appointment.DoctorName }}</td>
+                            <td>
+                                {% if appointment.Status == 'Completed' %}
+                                <span class="badge bg-success">{{ appointment.Status }}</span>
+                                {% elif appointment.Status == 'Scheduled' %}
+                                <span class="badge bg-primary">{{ appointment.Status }}</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ appointment.Status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="/appointments/{{ appointment.Appointment_ID }}" class="btn btn-sm btn-info text-white">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">No appointments found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer">
+        <a href="/appointments/add" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Schedule Appointment
+        </a>
+    </div>
+</div>
+
+<!-- Patient's Recent Prescriptions -->
+<div class="card mb-4">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="fas fa-prescription me-2"></i>Recent Prescriptions</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Doctor</th>
+                        <th>Medicine</th>
+                        <th>Dosage</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if prescriptions %}
+                        {% for prescription in prescriptions %}
+                        <tr>
+                            <td>{{ prescription.Prescription_Date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ prescription.DoctorName }}</td>
+                            <td>{{ prescription.Medicine_Name }}</td>
+                            <td>{{ prescription.Dosage }}</td>
+                            <td>
+                                <a href="/prescriptions/{{ prescription.Prescription_ID }}" class="btn btn-sm btn-info text-white">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center">No prescriptions found</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer">
+        <a href="/prescriptions/add" class="btn btn-info text-white">
+            <i class="fas fa-plus me-1"></i> Add Prescription
+        </a>
+    </div>
+</div>
+{% endblock %} 
