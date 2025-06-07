@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Staff - Hospital Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .dashboard-header {
+            background-color: #6f42c1;
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .main-content {
+            padding: 20px;
+            width: 100%;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+        }
+        .form-floating {
+            margin-bottom: 1.5rem;
+        }
+        .form-control:focus {
+            border-color: #6f42c1;
+            box-shadow: 0 0 0 0.25rem rgba(111, 66, 193, 0.25);
+        }
+        .btn-primary {
+            background-color: #6f42c1;
+            border-color: #6f42c1;
+        }
+        .btn-primary:hover {
+            background-color: #5a32ad;
+            border-color: #5a32ad;
+        }
+        .btn-outline-secondary {
+            color: #6c757d;
+            border-color: #6c757d;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Hospital Management System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('staff.dashboard') }}">Back to Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <h1><i class="fas fa-user-plus me-2"></i>Add New Staff</h1>
+            <p class="lead">Create a new staff member record in the system</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Main Content Area -->
+            <main class="col-12 px-md-4 main-content">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Add Staff Form -->
+                <div class="row">
+                    <div class="col-md-8 mx-auto">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-user-plus me-2"></i>Staff Registration Form</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="{{ url_for('staff.add_staff') }}" method="post">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <!-- Name -->
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="name" name="name" placeholder="Full Name" required>
+                                                <label for="name">Full Name</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <!-- Gender -->
+                                            <div class="form-floating mb-3">
+                                                <select class="form-select" id="gender" name="gender" required>
+                                                    <option value="" selected disabled>Select</option>
+                                                    <option value="Male">Male</option>
+                                                    <option value="Female">Female</option>
+                                                    <option value="Other">Other</option>
+                                                </select>
+                                                <label for="gender">Gender</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <!-- Date of Birth -->
+                                            <div class="form-floating mb-3">
+                                                <input type="date" class="form-control" id="dob" name="dob" required>
+                                                <label for="dob">Date of Birth</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <!-- Age -->
+                                            <div class="form-floating mb-3">
+                                                <input type="number" class="form-control" id="age" name="age" min="18" max="100" placeholder="Age" required>
+                                                <label for="age">Age</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <!-- Contact Number -->
+                                            <div class="form-floating mb-3">
+                                                <input type="tel" class="form-control" id="contact" name="contact" placeholder="Contact Number" required>
+                                                <label for="contact">Contact Number</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <!-- Email -->
+                                            <div class="form-floating mb-3">
+                                                <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                                                <label for="email">Email</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Address -->
+                                    <div class="form-floating mb-3">
+                                        <textarea class="form-control" id="address" name="address" style="height: 100px" placeholder="Address" required></textarea>
+                                        <label for="address">Address</label>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <!-- Role -->
+                                            <div class="form-floating mb-3">
+                                                <select class="form-select" id="role" name="role" required>
+                                                    <option value="" selected disabled>Select</option>
+                                                    <option value="Nurse">Nurse</option>
+                                                    <option value="Receptionist">Receptionist</option>
+                                                    <option value="Manager">Manager</option>
+                                                    <option value="Accountant">Accountant</option>
+                                                    <option value="Lab Technician">Lab Technician</option>
+                                                    <option value="Pharmacist">Pharmacist</option>
+                                                    <option value="Support Staff">Support Staff</option>
+                                                </select>
+                                                <label for="role">Staff Role</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <!-- Shift -->
+                                            <div class="form-floating mb-3">
+                                                <select class="form-select" id="shift" name="shift" required>
+                                                    <option value="" selected disabled>Select</option>
+                                                    <option value="Morning Shift">Morning Shift (6 AM - 2 PM)</option>
+                                                    <option value="Day Shift">Day Shift (10 AM - 6 PM)</option>
+                                                    <option value="Evening Shift">Evening Shift (2 PM - 10 PM)</option>
+                                                    <option value="Night Shift">Night Shift (10 PM - 6 AM)</option>
+                                                </select>
+                                                <label for="shift">Shift Timing</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                        <a href="{{ url_for('staff.dashboard') }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-user-plus me-2"></i>Add Staff Member
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-calculate age when date of birth changes
+        document.getElementById('dob').addEventListener('change', function() {
+            const dob = new Date(this.value);
+            const today = new Date();
+            let age = today.getFullYear() - dob.getFullYear();
+            const monthDiff = today.getMonth() - dob.getMonth();
+            
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                age--;
+            }
+            
+            if (age >= 0) {
+                document.getElementById('age').value = age;
+            }
+        });
+    </script>
+</body>
+</html> 

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Bill - Hospital Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .dashboard-header {
+            background-color: #dc3545;
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .main-content {
+            padding: 20px;
+            width: 100%;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+        }
+        .btn-primary {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        .btn-primary:hover {
+            background-color: #bb2d3b;
+            border-color: #bb2d3b;
+        }
+        .btn-outline-secondary {
+            color: #6c757d;
+            border-color: #6c757d;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Hospital Management System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('staff.billing_list') }}">Back to Billing List</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('staff.dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <h1><i class="fas fa-file-invoice-dollar me-2"></i>Add New Bill</h1>
+            <p class="lead">Create a new billing record for a patient</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Main Content Area -->
+            <main class="col-12 px-md-4 main-content">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Add Bill Form -->
+                <div class="row">
+                    <div class="col-md-8 mx-auto">
+                        <div class="card">
+                            <div class="card-header bg-danger text-white">
+                                <h5 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Bill Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <form action="{{ url_for('staff.add_bill') }}" method="post">
+                                    <!-- Patient Selection -->
+                                    <div class="mb-3">
+                                        <label for="patient_id" class="form-label">Patient <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="patient_id" name="patient_id" required>
+                                            <option value="" selected disabled>Select Patient</option>
+                                            {% for patient in patients %}
+                                                <option value="{{ patient.Patient_ID }}">{{ patient.Name }} (ID: {{ patient.Patient_ID }})</option>
+                                            {% endfor %}
+                                        </select>
+                                        <div class="form-text">Select the patient for whom the bill is being generated</div>
+                                    </div>
+
+                                    <!-- Amount -->
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label">Amount (₹) <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0" required>
+                                        <div class="form-text">Enter the total amount for this bill</div>
+                                    </div>
+
+                                    <!-- Purpose -->
+                                    <div class="mb-3">
+                                        <label for="purpose" class="form-label">Purpose <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="purpose" name="purpose" required>
+                                            <option value="" selected disabled>Select Purpose</option>
+                                            <option value="Consultation">Consultation</option>
+                                            <option value="Laboratory Tests">Laboratory Tests</option>
+                                            <option value="Medicine">Medicine</option>
+                                            <option value="Surgery">Surgery</option>
+                                            <option value="Room Charges">Room Charges</option>
+                                            <option value="Other Services">Other Services</option>
+                                        </select>
+                                        <div class="form-text">Select the purpose of this bill</div>
+                                    </div>
+
+                                    <!-- Payment Status -->
+                                    <div class="mb-3">
+                                        <label for="payment_status" class="form-label">Payment Status <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="payment_status" name="payment_status" required>
+                                            <option value="" selected disabled>Select Status</option>
+                                            <option value="Pending">Pending</option>
+                                            <option value="Completed">Completed</option>
+                                        </select>
+                                        <div class="form-text">Select the current payment status of the bill</div>
+                                    </div>
+
+                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                                        <a href="{{ url_for('staff.billing_list') }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-plus-circle me-2"></i>Add Bill
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

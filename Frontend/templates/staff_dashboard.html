@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Hospital Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .dashboard-header {
+            background-color: #17a2b8;
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .sidebar {
+            display: none;
+        }
+        .main-content {
+            padding: 20px;
+            width: 100%;
+        }
+        .col-md-9.ms-sm-auto.col-lg-10 {
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+            margin-left: 0 !important;
+            padding: 0 30px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+        }
+        .staff-info {
+            background-color: #e8f4f8;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+        .summary-card {
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .summary-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        /* Category card styles */
+        .category-card {
+            height: 200px;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+        .category-card:hover::before {
+            background: rgba(0,0,0,0.1);
+        }
+        .category-card:hover .btn-navigate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .category-card .card-img-overlay {
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1rem;
+        }
+        .category-card .category-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .category-card .card-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .category-card .card-text {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        .btn-navigate {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-weight: bold;
+            padding: 8px 20px;
+            border-radius: 30px;
+            margin-top: 10px;
+            opacity: 0.8;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .staff-card {
+            background: linear-gradient(135deg, #17a2b8, #0056b3);
+        }
+        .doctor-card {
+            background: linear-gradient(135deg, #28a745, #1a752f);
+        }
+        .patient-card {
+            background: linear-gradient(135deg, #fd7e14, #c65000);
+        }
+        .billing-card {
+            background: linear-gradient(135deg, #dc3545, #9c1c26);
+        }
+        .add-staff-card {
+            background: linear-gradient(135deg, #6f42c1, #6610f2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Hospital Management System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <h1><i class="fas fa-user-tie me-2"></i>Admin Dashboard</h1>
+            <p class="lead">Welcome to the staff management portal. Manage hospital operations, staff, patients and doctors.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar - Hidden -->
+            <!-- Main Content Area - Full Width -->
+            <main class="col-12 px-md-4 main-content">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Stats Overview -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-center bg-light summary-card">
+                            <div class="card-body">
+                                <h5 class="card-title text-info">Total Staff</h5>
+                                <h1 class="display-4">{{ staff_list|length }}</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center bg-light summary-card">
+                            <div class="card-body">
+                                <h5 class="card-title text-success">Total Doctors</h5>
+                                <h1 class="display-4">{{ doctor_count }}</h1>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center bg-light summary-card">
+                            <div class="card-body">
+                                <h5 class="card-title text-warning">Total Patients</h5>
+                                <h1 class="display-4">{{ patient_count }}</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Cards -->
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h4 class="mb-4">Hospital Management</h4>
+                    </div>
+                    
+                    <div class="col-md-4 col-lg-4 mb-4">
+                        <a href="{{ url_for('staff.staff_list') }}" class="text-decoration-none">
+                            <div class="card category-card staff-card">
+                                <div class="card-img-overlay text-white">
+                                    <i class="fas fa-user-tie category-icon"></i>
+                                    <h5 class="card-title">Staff</h5>
+                                    <p class="card-text">{{ staff_list|length }} Members</p>
+                                    <button class="btn btn-navigate">View Staff <i class="fas fa-arrow-right ms-1"></i></button>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-4 col-lg-4 mb-4">
+                        <a href="{{ url_for('staff.doctors_list') }}" class="text-decoration-none">
+                            <div class="card category-card doctor-card">
+                                <div class="card-img-overlay text-white">
+                                    <i class="fas fa-user-md category-icon"></i>
+                                    <h5 class="card-title">Doctors</h5>
+                                    <p class="card-text">{{ doctor_count }} Specialists</p>
+                                    <button class="btn btn-navigate">View Doctors <i class="fas fa-arrow-right ms-1"></i></button>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-4 col-lg-4 mb-4">
+                        <a href="{{ url_for('staff.patients_list') }}" class="text-decoration-none">
+                            <div class="card category-card patient-card">
+                                <div class="card-img-overlay text-white">
+                                    <i class="fas fa-user-injured category-icon"></i>
+                                    <h5 class="card-title">Patients</h5>
+                                    <p class="card-text">{{ patient_count }} Patients</p>
+                                    <button class="btn btn-navigate">View Patients <i class="fas fa-arrow-right ms-1"></i></button>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-6 mb-4">
+                        <a href="{{ url_for('staff.billing_list') }}" class="text-decoration-none">
+                            <div class="card category-card billing-card">
+                                <div class="card-img-overlay text-white">
+                                    <i class="fas fa-file-invoice-dollar category-icon"></i>
+                                    <h5 class="card-title">Billing</h5>
+                                    <p class="card-text">Manage Payments</p>
+                                    <button class="btn btn-navigate">View Billing <i class="fas fa-arrow-right ms-1"></i></button>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    
+                    <div class="col-md-6 col-lg-6 mb-4">
+                        <a href="{{ url_for('staff.add_staff') }}" class="text-decoration-none">
+                            <div class="card category-card add-staff-card">
+                                <div class="card-img-overlay text-white">
+                                    <i class="fas fa-user-plus category-icon"></i>
+                                    <h5 class="card-title">Add Staff</h5>
+                                    <p class="card-text">Register New Staff Member</p>
+                                    <button class="btn btn-navigate">Add Now <i class="fas fa-plus-circle ms-1"></i></button>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

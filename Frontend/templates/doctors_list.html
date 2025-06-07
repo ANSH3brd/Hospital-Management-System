@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctors List - Hospital Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            font-weight: bold;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        /* Make main content full width */
+        main {
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+            margin-left: 0 !important;
+            padding-left: 15px !important;
+            margin-right: 0 !important;
+        }
+        .doctor-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .doctor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        .doctor-specialization {
+            color: #3498db;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-hospital me-2"></i>Hospital Management System
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i>
+                            {% if session.user_name %}{{ session.user_name }}{% else %}Staff Member{% endif %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog me-2"></i>Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Main content full width -->
+            <main class="col-md-12 col-lg-12 ms-sm-auto px-md-4 py-4">
+                <!-- Page header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">
+                        <i class="fas fa-user-md me-2"></i> Doctors List
+                    </h1>
+                    <p>Manage your doctors in this Hospital</p>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <a href="{{ url_for('staff.dashboard') }}" class="btn btn-sm btn-outline-secondary me-2">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                        </a>
+                        <a href="{{ url_for('staff.add_doctor_form') }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus me-1"></i> Add New Doctor
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Doctor Cards -->
+                <div class="row">
+                    {% if doctors_list %}
+                        {% for doctor in doctors_list %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card doctor-card">
+                                    <div class="card-body">
+                                        <div class="text-center mb-3">
+                                            <i class="fas fa-user-md display-4 text-primary"></i>
+                                        </div>
+                                        <h5 class="card-title text-center">Dr. {{ doctor.Name }}</h5>
+                                        <p class="card-text text-center doctor-specialization">{{ doctor.Specialization }}</p>
+                                        <hr>
+                                        <div class="d-flex justify-content-between">
+                                            <span><i class="fas fa-id-card me-2"></i>{{ doctor.Doctor_ID }}</span>
+                                            <span><i class="fas fa-venus-mars me-2"></i>{{ doctor.Gender }}</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span><i class="fas fa-phone me-2"></i>{{ doctor.Contact_Number }}</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span><i class="fas fa-envelope me-2"></i>{{ doctor.Email }}</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span><i class="fas fa-map-marker-alt me-2"></i>{{ doctor.Address }}</span>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span><i class="fas fa-briefcase me-2"></i>Experience: {{ doctor.Experience }} years</span>
+                                        </div>
+                                        <div class="d-flex justify-content-end mt-3">
+                                            <form action="{{ url_for('staff.delete_doctor', doctor_id=doctor.Doctor_ID) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this doctor?');">
+                                                <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash me-1"></i>Delete</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info">No doctors found in the system.</div>
+                        </div>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 
