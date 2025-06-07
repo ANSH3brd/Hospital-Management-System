@@ -1,0 +1,255 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="far fa-calendar-check me-2"></i>Appointments</h1>
+    <a href="/appointments/add" class="btn btn-primary">
+        <i class="fas fa-plus me-1"></i> Add Appointment
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <ul class="nav nav-tabs mb-3" id="appointmentTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="true">All</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="scheduled-tab" data-bs-toggle="tab" data-bs-target="#scheduled" type="button" role="tab" aria-controls="scheduled" aria-selected="false">Scheduled</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">Completed</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cancelled-tab" data-bs-toggle="tab" data-bs-target="#cancelled" type="button" role="tab" aria-controls="cancelled" aria-selected="false">Cancelled</button>
+            </li>
+        </ul>
+        <div class="tab-content" id="appointmentTabContent">
+            <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover" id="appointmentsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in appointments %}
+                            <tr>
+                                <td>{{ appointment.Appointment_ID }}</td>
+                                <td>{{ appointment.PatientName }}</td>
+                                <td>{{ appointment.DoctorName }}</td>
+                                <td>{{ appointment.Appointment_Date.strftime('%Y-%m-%d') }}</td>
+                                <td>{{ appointment.Appointment_Time }}</td>
+                                <td>
+                                    {% if appointment.Status == 'Completed' %}
+                                    <span class="badge bg-success">{{ appointment.Status }}</span>
+                                    {% elif appointment.Status == 'Scheduled' %}
+                                    <span class="badge bg-primary">{{ appointment.Status }}</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">{{ appointment.Status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="/appointments/{{ appointment.Appointment_ID }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="/appointments/edit/{{ appointment.Appointment_ID }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form class="d-inline" action="/appointments/delete/{{ appointment.Appointment_ID }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this appointment?');">
+                                            <button type="submit" class="btn btn-sm btn-danger btn-delete" data-bs-toggle="tooltip" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="scheduled" role="tabpanel" aria-labelledby="scheduled-tab">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in appointments %}
+                                {% if appointment.Status == 'Scheduled' %}
+                                <tr>
+                                    <td>{{ appointment.Appointment_ID }}</td>
+                                    <td>{{ appointment.PatientName }}</td>
+                                    <td>{{ appointment.DoctorName }}</td>
+                                    <td>{{ appointment.Appointment_Date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ appointment.Appointment_Time }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/appointments/{{ appointment.Appointment_ID }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="/appointments/edit/{{ appointment.Appointment_ID }}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form class="d-inline" action="/appointments/update-status/{{ appointment.Appointment_ID }}" method="POST">
+                                                <input type="hidden" name="status" value="Completed">
+                                                <button type="submit" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Mark as Completed">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                            <form class="d-inline" action="/appointments/update-status/{{ appointment.Appointment_ID }}" method="POST">
+                                                <input type="hidden" name="status" value="Cancelled">
+                                                <button type="submit" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Mark as Cancelled">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in appointments %}
+                                {% if appointment.Status == 'Completed' %}
+                                <tr>
+                                    <td>{{ appointment.Appointment_ID }}</td>
+                                    <td>{{ appointment.PatientName }}</td>
+                                    <td>{{ appointment.DoctorName }}</td>
+                                    <td>{{ appointment.Appointment_Date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ appointment.Appointment_Time }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/appointments/{{ appointment.Appointment_ID }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="/medical-records/add" class="btn btn-sm btn-info text-white" data-bs-toggle="tooltip" title="Add Medical Record">
+                                                <i class="fas fa-file-medical"></i>
+                                            </a>
+                                            <a href="/prescriptions/add" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" title="Add Prescription">
+                                                <i class="fas fa-prescription"></i>
+                                            </a>
+                                            <a href="/billing/add" class="btn btn-sm btn-dark" data-bs-toggle="tooltip" title="Generate Bill">
+                                                <i class="fas fa-file-invoice-dollar"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="cancelled" role="tabpanel" aria-labelledby="cancelled-tab">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in appointments %}
+                                {% if appointment.Status == 'Cancelled' %}
+                                <tr>
+                                    <td>{{ appointment.Appointment_ID }}</td>
+                                    <td>{{ appointment.PatientName }}</td>
+                                    <td>{{ appointment.DoctorName }}</td>
+                                    <td>{{ appointment.Appointment_Date.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ appointment.Appointment_Time }}</td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="/appointments/{{ appointment.Appointment_ID }}" class="btn btn-sm btn-primary" data-bs-toggle="tooltip" title="View Details">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <form class="d-inline" action="/appointments/update-status/{{ appointment.Appointment_ID }}" method="POST">
+                                                <input type="hidden" name="status" value="Scheduled">
+                                                <button type="submit" class="btn btn-sm btn-success" data-bs-toggle="tooltip" title="Reschedule">
+                                                    <i class="fas fa-redo"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize DataTable if library is available
+        if (typeof $.fn.DataTable !== 'undefined') {
+            $('#appointmentsTable').DataTable({
+                responsive: true,
+                order: [[3, 'desc'], [4, 'desc']]
+            });
+        }
+        
+        // Filter table based on URL hash
+        const filterTabs = () => {
+            const hash = window.location.hash;
+            if (hash) {
+                const tab = document.querySelector(`a[href="${hash}"]`);
+                if (tab) {
+                    new bootstrap.Tab(tab).show();
+                }
+            }
+        };
+        
+        // Call on page load
+        filterTabs();
+        
+        // Call when hash changes
+        window.addEventListener('hashchange', filterTabs);
+    });
+</script>
+{% endblock %} 
