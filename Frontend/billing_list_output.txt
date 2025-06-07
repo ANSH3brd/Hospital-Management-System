@@ -1,0 +1,274 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing List - Hospital Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .dashboard-header {
+            background-color: #dc3545;
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+        .sidebar {
+            display: none;
+        }
+        .main-content {
+            padding: 20px;
+            width: 100%;
+        }
+        .col-md-9.ms-sm-auto.col-lg-10 {
+            width: 100%;
+            max-width: 100%;
+            flex: 0 0 100%;
+            margin-left: 0 !important;
+            padding: 0 30px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+        .bill-card {
+            border-left: 4px solid #dc3545;
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0;
+            font-weight: bold;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+        }
+        .bill-status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .status-paid {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-overdue {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .view-toggle {
+            margin-bottom: 20px;
+        }
+        .bill-amount {
+            font-weight: bold;
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Hospital Management System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('staff.dashboard') }}">Back to Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <div class="container">
+            <h1><i class="fas fa-file-invoice-dollar me-2"></i>Billing Management</h1>
+            <p class="lead">View and manage all patient billing records.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar removed -->
+            <!-- Main Content Area - Full Width -->
+            <main class="col-12 px-md-4 main-content">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- View Toggle -->
+                <div class="view-toggle d-flex justify-content-between align-items-center">
+                    <h3>Billing Records</h3>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-danger active" id="table-view-btn">
+                            <i class="fas fa-table me-1"></i> Table View
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" id="card-view-btn">
+                            <i class="fas fa-th-large me-1"></i> Card View
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table View -->
+                <div class="card" id="table-view">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Billing Records</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Bill ID</th>
+                                        <th>Patient Name</th>
+                                        <th>Bill Date</th>
+                                        <th>Amount</th>
+                                        <th>Purpose</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if billing_list %}
+                                        {% for bill in billing_list %}
+                                            <tr>
+                                                <td>{{ bill.Bill_ID }}</td>
+                                                <td>{{ bill.PatientName }}</td>
+                                                <td>{{ bill.Bill_Date }}</td>
+                                                <td class="bill-amount">â‚¹{{ bill.Total_Amount }}</td>
+                                                <td>{{ bill.Purpose }}</td>
+                                                <td>
+                                                    <span class="bill-status 
+                                                        {% if bill.Payment_Status == 'Paid' %}status-paid
+                                                        {% elif bill.Payment_Status == 'Pending' %}status-pending
+                                                        {% else %}status-overdue{% endif %}">
+                                                        {{ bill.Payment_Status }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-info">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-success">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </button>
+                                                    <button class="btn btn-sm btn-danger">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="7" class="text-center">No billing records found</td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card View -->
+                <div class="row" id="card-view" style="display:none;">
+                    {% if billing_list %}
+                        {% for bill in billing_list %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card bill-card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <span>Bill #{{ bill.Bill_ID }}</span>
+                                        <span class="bill-status 
+                                            {% if bill.Payment_Status == 'Paid' %}status-paid
+                                            {% elif bill.Payment_Status == 'Pending' %}status-pending
+                                            {% else %}status-overdue{% endif %}">
+                                            {{ bill.Payment_Status }}
+                                        </span>
+                                    </div>
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ bill.PatientName or 'Unknown Patient' }}</h5>
+                                        <p class="card-text">
+                                            <strong>Date:</strong> {{ bill.Bill_Date }}<br>
+                                            <strong>Purpose:</strong> {{ bill.Purpose }}<br>
+                                            <strong>Amount:</strong> <span class="bill-amount">â‚¹{{ bill.Total_Amount }}</span>
+                                        </p>
+                                        <div class="d-flex justify-content-between mt-3">
+                                            <button class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye me-1"></i> View
+                                            </button>
+                                            <button class="btn btn-sm btn-success">
+                                                <i class="fas fa-check-circle me-1"></i> Mark Paid
+                                            </button>
+                                            <button class="btn btn-sm btn-danger">
+                                                <i class="fas fa-trash me-1"></i> Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                No billing records found
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle between table and card views
+        document.addEventListener('DOMContentLoaded', function() {
+            const tableViewBtn = document.getElementById('table-view-btn');
+            const cardViewBtn = document.getElementById('card-view-btn');
+            const tableView = document.getElementById('table-view');
+            const cardView = document.getElementById('card-view');
+            
+            tableViewBtn.addEventListener('click', function() {
+                tableView.style.display = 'block';
+                cardView.style.display = 'none';
+                tableViewBtn.classList.add('active');
+                cardViewBtn.classList.remove('active');
+            });
+            
+            cardViewBtn.addEventListener('click', function() {
+                tableView.style.display = 'none';
+                cardView.style.display = 'flex';
+                tableViewBtn.classList.remove('active');
+                cardViewBtn.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html> 
